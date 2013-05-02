@@ -1,0 +1,25 @@
+<div metal:use-macro="layout">
+    <div metal:fill-slot="content">
+  <div id="wrap">
+    <div id="middle">
+      <div class="middle align-right">
+        <div id="left" class="app-welcome align-left">
+          <span tal:replace="message">
+        </div>
+        <div id="right" class="app-welcome align-right"></div>
+      </div>
+    </div>
+    <div id="bottom">
+      <div class="bottom">
+        <form action="${url}" method="post">
+          <input type="hidden" name="came_from" value="${came_from}">
+          <label for="user">Username</label><br /><input id="user" type="text" name="login" value="${login}"><br>
+          <label for="pass">Password</label><br /><input id="pass" type="password" name="password" value="${password}"><br>
+          <input class="submit padtop" type="submit" name="form.submitted" value="Log In">
+        </form>
+        <br><a href="/register">Create Account</a>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>

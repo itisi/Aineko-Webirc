@@ -1,0 +1,7 @@
+<div metal:use-macro="layout">
+    <div metal:fill-slot="content">
+        <p>Welcome to Z-Word.</p>
+        <p tal:condition="logged_in">Click <a href='/board'>here</a> to start playing.</p>
+        <p tal:condition="not logged_in">Click <a href='/register'>here</a> to create an account and start playing.</p>
+    </div>
+</div>

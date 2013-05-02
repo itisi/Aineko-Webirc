@@ -1,0 +1,16 @@
+<metal:block metal:define-macro="layout"><!DOCTYPE html>
+<html xmlns:metal="http://xml.zope.org/namespaces/metal"
+    xmlns:tal="http://xml.zope.org/namespaces/tal">
+<head>
+    <title>AinekoServ - ${page_title}</title>
+    <link rel="shortcut icon" href="/static/favicon.ico">
+	<link rel="stylesheet" href="/static/base.css">
+    <div tal:omit-tag="1" metal:define-slot="add_header">
+    </div>
+</head>
+<body>
+    <div id="body-chunk">
+        <div metal:define-slot="content"></div>
+    </div>
+</body>
+</html></metal:block>
