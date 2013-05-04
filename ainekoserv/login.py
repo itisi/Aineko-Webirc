@@ -30,9 +30,9 @@ def forcelogin(request):
     try:
         user = request.GET['user']
     except:
-        return HTTPFound('/board')
+        return HTTPFound('/client')
     headers = remember(request, int(user))
-    return HTTPFound('/board', headers = headers)
+    return HTTPFound('/client', headers = headers)
 
 def login(request):
     login_url = request.route_url('login')
@@ -47,7 +47,7 @@ def login(request):
         login = request.params['login']
         password = request.params['password']
         user = DBSession.query(User).filter(User.name_insensitive==login).first()
-        if user and checkpass(password, user.password):
+        if user and user.checkpass(password):
             try:
                 user.socket.username = user.name
             except:
@@ -112,11 +112,9 @@ def register(request):
             return fields
         #passed validation
         user = User()
-        settings = Settings()
-        DBSession.add(settings)
         user.name = request.POST['username']
         user.email = request.POST['email']
-        user.password = makepass(request.POST['password'])
+        user.setpass(request.POST['password'])
         DBSession.add(user)
         fields['form'] = request.POST['username']
         

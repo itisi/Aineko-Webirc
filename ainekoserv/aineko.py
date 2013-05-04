@@ -13,6 +13,7 @@ def acl(group):
     activeallow = (
             'recv_connect',
             'recv_disconnect',
+            'on_join',
         )
     groups["active"] = (set(activeallow), set())
     if not group in groups:
@@ -42,7 +43,9 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
         except:
             self.request.root.storage = {}
             self.storage = self.request.root.storage
-        self.only_me = False
+        for var in ['user', 'channel']:
+            if not var in self.storage:
+                self.storage[var] = {}
     def call_method(self, method_name, packet, *args):
         try:
             return super(ChatNamespace, self).call_method(method_name, packet, *args)
@@ -64,4 +67,10 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
         #else:
         #    return useracl(self.user)
         return ('recv_connect', 'recv_disconnect', 'on_test')
-
+    def recv_connect(self):
+        self.emit('servermessage', 'Hello Word')
+        userid = authenticated_userid(self.request)
+        self.emit('servermessage', userid)
+        self.storage['user'][userid] = self
+    def on_join(self):
+        pass

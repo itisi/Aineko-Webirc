@@ -1,0 +1,13 @@
+#bodycont {
+    background-color: #eeeeee;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    padding: 5px;
+    font-family: arial;
+}
+.errormessage {
+    color: #990000;
+}

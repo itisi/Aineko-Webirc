@@ -6,5 +6,15 @@
         <script type="text/javascript" src="/static/aineko.js"></script>
     </div>
     <div metal:fill-slot="content" tal:omit-tag="">
+        <div id="bodycont">
+            <div id="messages">
+                <div class="channel" id="servermessages"></div>
+            </div>
+            <div id="inputcont">
+                <form id="chatform">
+                    <input type="text" id="chatinput">
+                </form>
+            </div>
+        </div>
     </div>
 </div>
