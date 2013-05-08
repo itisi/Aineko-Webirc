@@ -1,13 +1,49 @@
+body {
+    margin: 0px;
+    background-color: #454545;
+}
 #bodycont {
-    background-color: #eeeeee;
     position: absolute;
     top: 0px;
     left: 0px;
-    bottom: 0px;
+    bottom: 56px;
     right: 0px;
     padding: 5px;
     font-family: arial;
 }
 .errormessage {
     color: #990000;
+}
+.w20 {
+    width: 15%;
+}
+.w60 {
+    width: 70%;
+}
+.w20, .w60 {
+    float: left;
+    height: 100%;
+}
+.w60 > div, .w20 > div {
+    margin: 3px;
+    background-color: #cccccc;
+    height: 100%;
+    border-radius: 6px;
+    padding: 5px;
+}
+#inputcont {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px;
+}
+#inputcont input {
+    border: 0px;
+    color: #454545;
+    border-radius: 5px;
+    font-size: 1.2em;
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
 }

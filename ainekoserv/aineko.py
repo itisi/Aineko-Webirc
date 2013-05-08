@@ -66,11 +66,19 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
         #    return []
         #else:
         #    return useracl(self.user)
-        return ('recv_connect', 'recv_disconnect', 'on_test')
+        return ('recv_connect', 'recv_disconnect', 'on_test', 'on_join')
     def recv_connect(self):
         self.emit('servermessage', 'Hello Word')
         userid = authenticated_userid(self.request)
-        self.emit('servermessage', userid)
+        self.emit('initvars', userid)
         self.storage['user'][userid] = self
-    def on_join(self):
-        pass
+    def on_join(self, channel):
+        if len(channel) < 2 or channel[0] != '#':
+            return self.emit('errormessage', 'Invalid channel format. Channels must be at least 2 characters in length and begin with #.')
+        pos = 0
+        for char in channel[1:]:
+            if char not in string.letters and (pos != 0 and char != '#'):
+                return self.emit('errormessage', 'Invalid channel name. Channels may only contain letters.')
+            pos += 1
+        user = User.by_id(userid)
+        self.emit('join', user.name, channel)

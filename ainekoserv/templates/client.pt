@@ -7,14 +7,22 @@
     </div>
     <div metal:fill-slot="content" tal:omit-tag="">
         <div id="bodycont">
-            <div id="messages">
-                <div class="channel" id="servermessages"></div>
+            <div class="w20">
+                <div id="channels"></div>
             </div>
-            <div id="inputcont">
-                <form id="chatform">
-                    <input type="text" id="chatinput">
-                </form>
+            <div class="w60">
+                <div id="messages">
+                    <div class="channel" id="servermessages"></div>
+                </div>
             </div>
+            <div class="w20">
+                <div id="users"></div>
+            </div>
+        </div>
+        <div id="inputcont">
+            <form id="chatform">
+                <input type="text" id="chatinput">
+            </form>
         </div>
     </div>
 </div>
