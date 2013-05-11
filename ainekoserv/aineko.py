@@ -5,7 +5,7 @@ from pyramid.security import authenticated_userid
 from sqlalchemy.orm import joinedload
 import transaction
 import traceback
-
+import string
 
 def acl(group):
     """Returns a tuple containing an allowed method set() and a denied method set()"""
@@ -67,10 +67,25 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
         #else:
         #    return useracl(self.user)
         return ('recv_connect', 'recv_disconnect', 'on_test', 'on_join')
+    def emitChannel(channel, *args, **kwargs):
+        if channel in self.storage['channel']:
+            for user in self.storage['channel'][channel]:
+                user.emit(*args, **kwargs)
     def recv_connect(self):
         self.emit('servermessage', 'Hello Word')
         userid = authenticated_userid(self.request)
-        self.emit('initvars', userid)
+        user = User.by_id(userid)
+        if user:
+            self.name = user.name
+            self.id = user.id
+        else:
+            self.emit('servermessage', 'You are not logged in.')
+            return
+        initvars = {
+                    'meid': user.id,
+                    'name': user.name,
+                }
+        self.emit('initvars', initvars)
         self.storage['user'][userid] = self
     def on_join(self, channel):
         if len(channel) < 2 or channel[0] != '#':
@@ -80,5 +95,9 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
             if char not in string.letters and (pos != 0 and char != '#'):
                 return self.emit('errormessage', 'Invalid channel name. Channels may only contain letters.')
             pos += 1
-        user = User.by_id(userid)
+        user = User.by_id(self.id)
+        channel = channel.lower()
+        if not channel in self.storage['channel']:
+            self.storage['channel'][channel] = set()
+        self.storage['channel'][channel].add(self)
         self.emit('join', user.name, channel)

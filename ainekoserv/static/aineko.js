@@ -3,9 +3,19 @@ WEB_SOCKET_DEBUG = true;
 var aineko = (function () {
     "use strict";
     var socket, aineko;
+    function Channel(name) {
+        this.name = name;
+        this.users = {};
+    }
     function Aineko() {
         this.chathistory = [];
         this.chatindex = 0;
+        this.channels = {};
+    }
+    function activateChannel(channel) {
+        var cLink = $(document.getElementById(channel)); //ids have # signs so pass jQuery the tag
+        var channel = $(document.getElementById(channel));
+        cLink.addClass('active');
     }
     function errormessage(message) {
         $('#servermessages').append('<div class="errormessage">' + message + '</div>');
@@ -14,17 +24,29 @@ var aineko = (function () {
     $(function() {
         var socket;
         socket = io.connect('/aineko_serv');
+        socket.on('initvars', function(vars) {
+            for (var key in vars) {
+                if (vars.hasOwnProperty(key)) {
+                    aineko[key] = vars[key];
+                }
+            }
+        });
         socket.on('servermessage', function(message) {
             $('#servermessages').append('<div class="message">' + message + '</div>');
-        });
-        socket.on('join', function(channel) {
-            $('#messages').append('<div class="channel" id="channel"></div>');
-            $(channel).append('Joined channel ' + channel);
         });
         socket.on('error', function(type, message) {
             if (type === 'method_access_denied') {
                 errormessage('<b>Access Denied: </b>' + message);
             }
+        });
+        socket.on('join', function(user, channel) {            
+            if (user == aineko.name) {
+                $('#messages').append('<div class="channel" id="' + channel + '"></div>');
+                aineko.channels[channel] = new Channel(channel);
+                $('#channels').append('<div id="' + channel + '" class="channelBtn">' + channel + '</div>');
+            } else {
+            }
+            activateChannel(channel);
         });
 
         $('#chatform').submit(function(e) {

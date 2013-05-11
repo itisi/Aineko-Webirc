@@ -71,6 +71,17 @@ class User(Base):
         salt = self.password[-10:]
         return sha512(password + salt).hexdigest() == phash
 
+    @classmethod
+    def by_id(cls, userid, joined = None):
+        if joined is not None:
+            return DBSession.query(User).options(joinedload_all(*joined)).filter(User.id == userid).first()
+        else:
+            return DBSession.query(User).filter(User.id == userid).first()
+
+    @classmethod
+    def by_username(cls, username):
+        return DBSession.query(User).filter(User.name == username).first()
+
 class Channel(Base):
     __tablename__ = 'channels'
     id = Column(Integer, primary_key=True)
