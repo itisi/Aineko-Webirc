@@ -1,4 +1,4 @@
-from .models import DBSession, User
+from .models import DBSession, User, Channel
 from socketio.namespace import BaseNamespace
 from socketio.mixins import BroadcastMixin
 from pyramid.security import authenticated_userid
@@ -46,6 +46,7 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
         for var in ['user', 'channel']:
             if not var in self.storage:
                 self.storage[var] = {}
+
     def call_method(self, method_name, packet, *args):
         try:
             return super(ChatNamespace, self).call_method(method_name, packet, *args)
@@ -54,6 +55,7 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
             traceback.print_exc()
         finally:
             transaction.commit()
+
     def call_method_with_acl(self, method_name, packet, *args):
         if not self.is_method_allowed(method_name):
             self.error('method_access_denied', method_name)
@@ -66,13 +68,15 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
         #    return []
         #else:
         #    return useracl(self.user)
-        return ('recv_connect', 'recv_disconnect', 'on_test', 'on_join')
-    def emitChannel(channel, *args, **kwargs):
+        return ('recv_connect', 'recv_disconnect', 'on_test', 'on_join', 'on_privmsg')
+
+    def emitChannel(self, channel, *args, **kwargs):
         if channel in self.storage['channel']:
             for user in self.storage['channel'][channel]:
                 user.emit(*args, **kwargs)
+
     def recv_connect(self):
-        self.emit('servermessage', 'Hello Word')
+        self.emit('servermessage', 'You are now connected.')
         userid = authenticated_userid(self.request)
         user = User.by_id(userid)
         if user:
@@ -87,17 +91,32 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
                 }
         self.emit('initvars', initvars)
         self.storage['user'][userid] = self
-    def on_join(self, channel):
-        if len(channel) < 2 or channel[0] != '#':
+
+    def on_join(self, channelname):
+        if len(channelname) < 2 or channelname[0] != '#':
             return self.emit('errormessage', 'Invalid channel format. Channels must be at least 2 characters in length and begin with #.')
         pos = 0
-        for char in channel[1:]:
+        for char in channelname[1:]:
             if char not in string.letters and (pos != 0 and char != '#'):
                 return self.emit('errormessage', 'Invalid channel name. Channels may only contain letters.')
             pos += 1
         user = User.by_id(self.id)
-        channel = channel.lower()
-        if not channel in self.storage['channel']:
-            self.storage['channel'][channel] = set()
-        self.storage['channel'][channel].add(self)
-        self.emit('join', user.name, channel)
+        channelname = channelname.lower()
+        channel = Channel.by_name(channelname)
+        if not channel:
+            channel = Channel()
+            channel.name = channelname
+            DBSession.add(channel)
+            DBSession.flush()
+        if not user in channel.users:
+            channel.users.append(user)
+            DBSession.add(user)
+        if not channel.id in self.storage['channel']:
+            self.storage['channel'][channel.id] = set()
+        self.storage['channel'][channel.id].add(self)
+        self.emit('join', user.name, channel.simple())
+
+    def on_privmsg(self, channelid, message):
+        channel = Channel.by_id(channelid)
+        user = User.by_id(self.id)
+        self.emitChannel(channelid, 'privmsg', channel.id, user.name, message)

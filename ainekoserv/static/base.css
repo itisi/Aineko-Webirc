@@ -37,18 +37,40 @@ body {
     width: 100%;
     box-sizing: border-box;
     padding: 7px;
+    padding-bottom: 5px;
 }
 #inputcont input {
     border: 0px;
     color: #454545;
     border-radius: 5px;
     font-size: 1.2em;
-    padding: 5px;
+    padding: 6px;
     width: 100%;
+    padding-left: 10px;
+    outline: 0px;
     box-sizing: border-box;
 }
 .channelBtn {
     border-radius: 4px;
     padding: 4px;
     background-color: #666666;
+    margin-top: 5px;
+}
+.channelBtn:first-child {
+    margin-top: 0px;
+}
+.channelBtn.activechannel {
+    background-color: #8D322D;
+    color: #ffffff;
+}
+.timestamp {
+    color: #20335E;
+}
+.nick {
+    font-weight: bold;
+    color: #666;
+    margin-right: 5px;
+}
+.nick.isme {
+    color: #8D322D;
 }
