@@ -18,6 +18,8 @@ requires = [
     'waitress',
     'gevent',
     'psycopg2',
+    'deform',
+    'twisted',
     ]
 
 setup(name='ainekoserv',

@@ -32,6 +32,10 @@ def client(request):
             'page_title': 'Client',
         }
 
+@view_config(route_name='error', renderer='templates/index.pt')
+def error(request):
+    1/0
+
 def socketio_service(request):
     retval = socketio_manage(request.environ,
         {  

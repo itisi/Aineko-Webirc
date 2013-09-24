@@ -16,7 +16,9 @@ var aineko = (function () {
         this.users = channel.users || [];
         this.messageBody = $('<div class="channel" data-channel="' + channel.id + '" id=channel' + channel.id  + '"></div>');
         $('#messages').append(this.messageBody);
-        this.link = $('<div data-channel="' + channel.id + '" id="channelLink_' + channel.id + '" class="channelBtn">' + channel.name + '</div>');
+        
+        this.link = $('<div data-channel="' + channel.id + '" id="channelLink_' + channel.id + '" class="channelBtn">' + 
+                '<span class="hotkey">' + ($('#channels').children().length + 1) + '.</span>' + channel.name + '<i class="channelAlert icon-exclamation"></i><div class="clear"></div></div>');
         $('#channels').append(this.link);
     }
 
@@ -25,8 +27,6 @@ var aineko = (function () {
         if (options === undefined) {
             options = {};
         }
-        date = new Date().toLocaleString();
-        dateString = '<span class="timestamp">[' + date + ']</span> ';
         messageClasses = ['message'];
         if (this.id === -1) {
             messageClasses.push('servermessage');
@@ -35,15 +35,18 @@ var aineko = (function () {
             messageClasses.push('errormessage');
         }
         classesString = messageClasses.join(' ');
-        message = $('<span></span>').text(message);
-        this.messageBody.append('<div class="' + classesString + '">' + dateString + message.html() +'</div>');
+        dateString = aineko.timestamp();
+        if (aineko.curchannel !== this) {
+            this.link.addClass('attention');
+        }
+        this.messageBody.append('<div class="' + classesString + '">' + dateString + message +'</div>');
     }
 
     Channel.prototype.activate = function () {
         if (aineko.curchannel) {
             aineko.curchannel.deactivate();
         }
-        this.link.addClass('activechannel');
+        this.link.addClass('activechannel').removeClass('attention');
         this.messageBody.show();
         aineko.curchannel = this;
     }
@@ -65,7 +68,36 @@ var aineko = (function () {
             nickClasses.push('isme');
         }
         return '<span class="' + nickClasses.join(' ') +'">&lt;' + name + '&gt;</span>';
-    }
+    };
+
+    Aineko.prototype.timestamp = function() {
+        var date, hour, minute;
+        date = new Date();
+        minute = date.getMinutes();
+        if (minute < 10) {
+            minute = '0' + minute;
+        }
+        hour = date.getHours()
+        if (hour < 10) {
+            hour = '0' + hour;
+        }
+        return '<span class="timestamp">[' + hour + ':' + minute + ']</span> ';
+    };
+
+    Aineko.prototype.advanceChannel = function() {
+        var channels = $('#channels').children();
+        channels.each(function(i) {
+            if ($(this).hasClass('activechannel')) {
+                $(channels[(i + 1) % channels.length]).channel().activate();
+                return false;
+            }            
+        });
+    };
+
+    Aineko.prototype.hotkeys = {
+        'J': '#joinChannel',
+        192: Aineko.prototype.advanceChannel //actually alt+`
+    };
 
     function errormessage(message) {
         aineko.channels[-1].printMessage(message, {error: true})
@@ -85,6 +117,7 @@ var aineko = (function () {
         });
         socket.on('privmsg', function(channel, name, message) {
             var channel = aineko.channels[channel];
+            message = $('<span>').text(message).html();
             channel.printMessage(aineko.nick(name) + message);
         });
         socket.on('servermessage', function(message) {
@@ -102,6 +135,8 @@ var aineko = (function () {
                 channel.activate();
             }
         });
+
+        socket.on('errormessage', errormessage);
 
         $('#chatform').submit(function(e) {
             var val, parts, func;
@@ -126,7 +161,46 @@ var aineko = (function () {
         $('#channels').on('click', '.channelBtn', function() {
             $(this).channel().activate();
         });
-
+        $('#joinChannel').click(function () {
+            $('html').removeClass('showhotkeys'); //prompt keeps alt onkeyup from firing
+            var channel = prompt('Please enter the channel name.');
+            if (channel) {
+                socket.emit('join', channel);
+                $('#chatinput').focus();
+            }
+        });
+        $('body').keydown(function(e) {
+            var channelindex, channels, hotkey;
+            if (e.keyCode === 18) { //alt
+                e.preventDefault();
+                $('html').addClass('showhotkeys');
+            }
+            if (e.keyCode >= 49 && e.keyCode <= 57 && e.altKey) { //switch channels with alt 1-9
+                e.preventDefault();
+                channelindex = e.keyCode - 49;
+                channels = $('.channel');
+                if (channels.length > channelindex) {
+                    $(channels[channelindex]).channel().activate();
+                }
+            } else if(e.altKey) {
+                hotkey = String.fromCharCode(e.keyCode);
+                if (aineko.hotkeys[hotkey] || aineko.hotkeys[e.keyCode]) {
+                    if (!aineko.hotkeys[hotkey]) {
+                        hotkey = e.keyCode;
+                    }
+                    if (typeof aineko.hotkeys[hotkey] === 'function') {
+                        aineko.hotkeys[hotkey]();
+                    } else {
+                        $(aineko.hotkeys[hotkey]).click();
+                    }
+                }
+            }
+        });
+        $('body').keyup(function(e) {
+            if (e.keyCode === 18) {
+                $('html').removeClass('showhotkeys');
+            }
+        });
     });
     return aineko;
 }());

@@ -5,8 +5,9 @@
     <title>AinekoServ - ${page_title}</title>
     <link rel="shortcut icon" href="/static/favicon.ico">
 	<link rel="stylesheet" href="/static/base.css">
-    <div tal:omit-tag="1" metal:define-slot="add_header">
-    </div>
+    <div tal:omit-tag="1" metal:define-slot="add_css"></div>
+    <div tal:omit-tag="1" metal:define-slot="add_js"></div>
+    <div tal:omit-tag="1" metal:define-slot="add_header"></div>
 </head>
 <body>
     <div id="body-chunk">

@@ -6,6 +6,7 @@ from sqlalchemy.orm import joinedload
 import transaction
 import traceback
 import string
+import communication
 
 def acl(group):
     """Returns a tuple containing an allowed method set() and a denied method set()"""
@@ -74,14 +75,42 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
         if channel in self.storage['channel']:
             for user in self.storage['channel'][channel]:
                 user.emit(*args, **kwargs)
+    
+    def joinChannelsByName(self, names):
+        if len(names) > 1:
+            channels = DBSession.query(Channel).filter(Channel.name.in_(names)).all()
+        elif len(names) == 1:
+            channels = DBSession.query(Channel).filter(Channel.name == names[0]).all()
+        else:
+            channels = []
+        channels = {channel.name: channel for channel in channels}
+        flush = False
+        for name in names:
+            if name not in channels:
+                flush = True
+                channel = Channel()
+                channel.name = name
+                channels[name] = channel
+        if flush:
+            DBSession.flush()
+        for channel in channels:
+            channel = channels[channel]
+            if not channel.id in self.storage['channel']:
+                self.storage['channel'][channel.id] = set()
+            self.storage['channel'][channel.id].add(self)
+            self.emit('join', self.name, channel.simple())
+            communication.sendmessage({'command': 'join', 'channel': channel.name, 'user': self.name})
+        
 
     def recv_connect(self):
+        print communication.nicks, communication.channels
         self.emit('servermessage', 'You are now connected.')
         userid = authenticated_userid(self.request)
         user = User.by_id(userid)
         if user:
             self.name = user.name
             self.id = user.id
+            communication.adduser(self)
         else:
             self.emit('servermessage', 'You are not logged in.')
             return
@@ -90,33 +119,28 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
                     'name': user.name,
                 }
         self.emit('initvars', initvars)
+        if (self.name in communication.nicks):
+            if 'channels' in communication.nicks[self.name]:
+                self.joinChannelsByName(communication.nicks[self.name]['channels'])
+            else:
+                communication.nicks[self.name]['channels'] = [];
+        else:
+            communication.nicks[self.name] = {'channels': []}
         self.storage['user'][userid] = self
 
     def on_join(self, channelname):
         if len(channelname) < 2 or channelname[0] != '#':
             return self.emit('errormessage', 'Invalid channel format. Channels must be at least 2 characters in length and begin with #.')
         pos = 0
-        for char in channelname[1:]:
-            if char not in string.letters and (pos != 0 and char != '#'):
+        for char in channelname:
+            if char not in string.letters + string.digits + '#' or (pos == 0 and char != '#') or (char == '#' and pos != 0):
                 return self.emit('errormessage', 'Invalid channel name. Channels may only contain letters.')
             pos += 1
-        user = User.by_id(self.id)
-        channelname = channelname.lower()
-        channel = Channel.by_name(channelname)
-        if not channel:
-            channel = Channel()
-            channel.name = channelname
-            DBSession.add(channel)
-            DBSession.flush()
-        if not user in channel.users:
-            channel.users.append(user)
-            DBSession.add(user)
-        if not channel.id in self.storage['channel']:
-            self.storage['channel'][channel.id] = set()
-        self.storage['channel'][channel.id].add(self)
-        self.emit('join', user.name, channel.simple())
+        self.joinChannelsByName([channelname])
+        communication.sendmessage({'command': 'join', 'channel': channelname, 'user': self.name})
 
     def on_privmsg(self, channelid, message):
         channel = Channel.by_id(channelid)
         user = User.by_id(self.id)
         self.emitChannel(channelid, 'privmsg', channel.id, user.name, message)
+        communication.sendmessage({'command': 'privmsg', 'channel': channel.name, 'user': user.name, 'message': message})

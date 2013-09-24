@@ -1,6 +1,7 @@
 body {
     margin: 0px;
     background-color: #454545;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
 }
 #bodycont {
     position: absolute;
@@ -9,7 +10,6 @@ body {
     bottom: 56px;
     right: 0px;
     padding: 5px;
-    font-family: arial;
 }
 .errormessage {
     color: #990000;
@@ -26,8 +26,10 @@ body {
 }
 .w60 > div, .w20 > div {
     margin: 3px;
-    background-color: #cccccc;
+    background-color: #F3F0EB;
     height: 100%;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
     border-radius: 6px;
     padding: 5px;
 }
@@ -36,6 +38,7 @@ body {
     bottom: 0px;
     width: 100%;
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
     padding: 7px;
     padding-bottom: 5px;
 }
@@ -49,12 +52,16 @@ body {
     padding-left: 10px;
     outline: 0px;
     box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
 .channelBtn {
     border-radius: 4px;
     padding: 4px;
-    background-color: #666666;
+    background-color: #454545;
     margin-top: 5px;
+    color: #ffffff;
+    cursor: pointer;
+    word-break: break-all;
 }
 .channelBtn:first-child {
     margin-top: 0px;
@@ -73,4 +80,96 @@ body {
 }
 .nick.isme {
     color: #8D322D;
+}
+.hotkey {
+    display: none;
+    margin-right: 5px;
+    color: #DDD3AB;
+}
+#hotkeyCont {
+    display: none;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    z-index: 1000;
+    background-color: #454545;
+    opacity: .8;
+}
+.hotkeyBlock {
+    padding: 15px;
+    float: left;
+    color: #ffffff;
+    font-weight: bold;
+}
+.showhotkeys #hotkeyCont {
+    display: block;
+}
+.showhotkeys .hotkey {
+    display: inline;
+}
+.scrollbar-container {
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    margin: 20px;
+
+    border: 4px solid rgba(0, 0, 0, 0.2);
+    overflow: auto;
+    background-color: whiteSmoke;
+}
+.scrollbar-container .inner {
+    height: 2011px;
+    width: 1985px;
+    padding: 1em;
+    background-color: white;
+    font-family: sans-serif;
+}
+::-webkit-scrollbar {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 4px solid #cccccc;
+    border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+#messages {
+    overflow: auto;
+    font-size: .9em;
+}
+button {
+    border: 0px;
+    margin: 0px;
+    padding: 4px;
+    color: #ffffff;
+    font-weight: bold;
+    background-color: #454545;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    float: right;
+    margin-top: 5px;
+    cursor: pointer;
+}
+.attention .channelAlert {
+    display: inline !important;
+}
+.channelAlert {
+    float: right;
+    color: #ffcc00;
+    display: none !important;
+}
+.clear {
+    clear: both;
+}
+.giant {
+    font-size: 2em;
+    height: 4px;
+    position: relative;
+    top: 8px;
+}
+.goup {
+    position: relative;
+    top: -5px;
 }

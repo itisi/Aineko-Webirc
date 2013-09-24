@@ -3,6 +3,7 @@ from sqlalchemy import engine_from_config
 from pyramid_beaker import session_factory_from_settings
 from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+import gevent.monkey
 
 from .models import (
     DBSession,
@@ -20,6 +21,7 @@ def groupfinder(userid, request):
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+    gevent.monkey.patch_all()
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
@@ -43,6 +45,7 @@ def main(global_config, **settings):
     config.add_route('forcelogin', '/forcelogin')
     config.add_route('register', '/register')
     config.add_route('client', '/client')
+    config.add_route('error', '/error')
 
     config.add_route('socket_io', 'socket.io/*remaining')
 
