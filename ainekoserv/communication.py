@@ -48,6 +48,19 @@ class webirc(LineReceiver):
         global channels, nicks
         channels = line['channels']
         nicks = line['nicks']
+        remchannels = [name for name in channels]
+        dbchannels = DBSession.query(Channel).filter(Channel.name.in_(remchannels))
+        for channel in dbchannels:
+            channel.topic = channels[channel.name]['topic']
+            DBSession.add(channel)
+            remchannels.remove(channel.name)
+        for channelname in remchannels:
+            channel = Channel()
+            channel.topic = channels[channelname]['topic']
+            channel.name = channelname
+            DBSession.add(channel)
+        transaction.commit()
+        transaction.begin()
 
 class webircFactory(ClientFactory):
     def __init__(self):

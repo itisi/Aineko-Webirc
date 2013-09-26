@@ -16,7 +16,6 @@ var aineko = (function () {
         this.name = channel.name || null;
         this.users = channel.users || [];
         this.messageBody = $('<div class="channel" data-channel="' + channel.id + '" id=channel' + channel.id  + '"></div>');
-        this.messageBody.append(this.topic);
         $('#messages').append(this.messageBody);
         this.link = $('<div data-channel="' + channel.id + '" id="channelLink_' + channel.id + '" class="channelBtn">' + 
                 '<span class="hotkey">' + ($('#channels').children().length + 1) + '.</span>' + channel.name + '<i class="channelAlert icon-exclamation"></i><div class="clear"></div></div>');
@@ -50,7 +49,7 @@ var aineko = (function () {
         this.link.addClass('activechannel').removeClass('attention');
         this.messageBody.show();
         aineko.curchannel = this;
-        $('#channel').text(this.topic);
+        $('#topic').text(this.topic);
     }
 
     Channel.prototype.deactivate = function() {

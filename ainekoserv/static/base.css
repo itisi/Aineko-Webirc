@@ -139,10 +139,12 @@ body {
 #messages {
     font-size: .9em;    
     position: relative;
+    overflow: auto;
+    height: 100%;
 }
 .channel {
     overflow: auto;
-    position: absolute;
+    position: relative;
     top: 24px;
     bottom: 0px;
     left: 0px;
@@ -153,11 +155,19 @@ body {
     left: 0px;
     right: 0px;
     top: 0px;
-    height: 20px;
+    height: 18px;
     background-color: #cccccc;
     padding: 4px;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
+    z-index: 3;
+    font-size: .8em;
+    font-weight: bold;
+    padding-left: 20px;
+    padding-top: 6px;
+    color: #434E68;
+    white-space: nowrap;
+    overflow: hidden;
 }
 button {
     border: 0px;
@@ -193,7 +203,4 @@ button {
 .goup {
     position: relative;
     top: -5px;
-}
-.channel {
-    position: relative;
 }
