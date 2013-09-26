@@ -1,4 +1,5 @@
-import time, traceback, _mysql
+import time
+import traceback
 def refresh(bot):
     for module in bot.registry["modules"]:
         reload(bot.registry["modules"][module])

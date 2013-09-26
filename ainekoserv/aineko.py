@@ -91,6 +91,7 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
                 channel = Channel()
                 channel.name = name
                 channels[name] = channel
+                DBSession.add(channel)
         if flush:
             DBSession.flush()
         for channel in channels:
@@ -103,7 +104,6 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
         
 
     def recv_connect(self):
-        print communication.nicks, communication.channels
         self.emit('servermessage', 'You are now connected.')
         userid = authenticated_userid(self.request)
         user = User.by_id(userid)
@@ -137,7 +137,6 @@ class ChatNamespace(BaseNamespace, BroadcastMixin):
                 return self.emit('errormessage', 'Invalid channel name. Channels may only contain letters.')
             pos += 1
         self.joinChannelsByName([channelname])
-        communication.sendmessage({'command': 'join', 'channel': channelname, 'user': self.name})
 
     def on_privmsg(self, channelid, message):
         channel = Channel.by_id(channelid)

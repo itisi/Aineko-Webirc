@@ -19,7 +19,9 @@
                 </div>
             </div>
             <div class="w60">
-                <div id="messages">
+                <div id="messagecont">
+                    <div id="topic"></div>
+                    <div id="messages"></div>
                 </div>
             </div>
             <div class="w20">

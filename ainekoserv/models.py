@@ -103,6 +103,7 @@ class Channel(Base, AinekoBase):
     registered = Column(Boolean)
     name = Column(Text)
     password = Column(Text)
+    topic = Column(Text)
     invite_only = Column(Boolean)
     owner_id = Column(Integer, ForeignKey('users.id'))
     owner = relationship(User, backref='owned_channels')
@@ -111,5 +112,6 @@ class Channel(Base, AinekoBase):
         return {
                 'id': self.id,
                 'name': self.name,
+                'topic': self.topic,
                 'users': [user.name for user in self.users],
             }
